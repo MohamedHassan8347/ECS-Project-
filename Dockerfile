@@ -1,2 +1,2 @@
-FROM ghcr.io/umami-software/umami:postgreSQL-latest
+FROM ghcr.io/umami-software/umami:postgresql-latest
 EXPOSE 3000
