@@ -2,11 +2,6 @@ name: Build and Push Umami to ECR
 
 on:
   workflow_dispatch:
-  push:
-    branches: [ main ]
-    paths:
-      - "Dockerfile"
-      - ".github/workflows/build-and-push.yml"
 
 env:
   AWS_REGION: eu-west-2
@@ -33,22 +28,19 @@ jobs:
         uses: aws-actions/amazon-ecr-login@v2
 
       - name: Build, tag, and push image
-        env:
-          AWS_REGION: ${{ env.AWS_REGION }}
-          ECR_REPO: ${{ env.ECR_REPO }}
         run: |
           set -e
           SHA=$(git rev-parse --short HEAD)
           ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
-          IMAGE_URI="$ACCOUNT_ID.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPO}:$SHA"
+          IMAGE_URI="${ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPO}:${SHA}"
 
-          echo "Building image: $IMAGE_URI"
-          docker build -t "$IMAGE_URI" .
+          echo "Building image: ${IMAGE_URI}"
+          docker build -t "${IMAGE_URI}" .
 
           echo "Pushing image..."
-          docker push "$IMAGE_URI"
+          docker push "${IMAGE_URI}"
 
-          echo "IMAGE_URI=$IMAGE_URI" >> $GITHUB_ENV
+          echo "IMAGE_URI=${IMAGE_URI}" >> $GITHUB_ENV
 
       - name: Show image URI
         run: echo "Pushed image: $IMAGE_URI"
