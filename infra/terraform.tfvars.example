@@ -1,0 +1,7 @@
+domain_name = "mhecsproject.com"
+subdomain   = "tm"
+image_tag   = "88a392f"
+
+# Provide these locally in infra/terraform.tfvars (do not commit secrets)
+# db_password = "..."
+# app_secret  = "..."
