@@ -42,6 +42,7 @@ crash.*.log
 .override.tf.json
 *_override.tf
 *_override.tf.json
+infra/terraform.tfvars
 
 # Optional: keep this commented if you want to COMMIT it
 # .terraform.lock.hcl

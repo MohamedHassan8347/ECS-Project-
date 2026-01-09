@@ -1,7 +1,16 @@
-domain_name = "mhecsproject.com"
-subdomain   = "tm"
-image_tag   = "88a392f"
+project_name         = "umami"
+aws_region           = "eu-north-1"
+domain_name          = "mhecsproject.com"
+subdomain            = "tm"
+hosted_zone_id       = "Z04887172DPZ00NG95JRN"
+db_name              = "umami"
+db_username          = "umami"
 
-# Provide these locally in infra/terraform.tfvars (do not commit secrets)
-# db_password = "..."
-# app_secret  = "..."
+# do NOT put real values here:
+db_password          = "REPLACE_ME"
+app_secret           = "REPLACE_ME"
+acm_certificate_arn  = "arn:aws:acm:eu-north-1:ACCOUNT:certificate/UUID"
+
+# image_tag is set by CI using commit SHA
+image_tag            = "REPLACED_BY_CI"
+

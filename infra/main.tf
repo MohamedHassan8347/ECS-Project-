@@ -22,7 +22,7 @@ module "rds" {
   source = "./modules/rds"
 
   name        = var.project_name
-  subnet_ids  = module.network.public_subnet_ids
+  subnet_ids  = module.network.private_subnet_ids
   db_sg_id    = module.security.db_sg_id
   db_name     = var.db_name
   db_username = var.db_username
@@ -31,11 +31,12 @@ module "rds" {
 
 locals {
   # urlencode() makes special chars safe in URLs (e.g. !, @, :)
-  database_url = "postgresql://${var.db_username}:${urlencode(var.db_password)}@${module.rds.endpoint}:${module.rds.port}/${var.db_name}?sslmode=require"
+  database_url = "postgresql://${var.db_username}:${urlencode(var.db_password)}@${module.rds.endpoint}:${module.rds.port}/${var.db_name}?sslmode=no-verify"
 }
 
 module "alb" {
-  source = "./modules/alb"
+  source          = "./modules/alb"
+  certificate_arn = var.acm_certificate_arn
 
   name              = var.project_name
   vpc_id            = module.network.vpc_id
@@ -43,7 +44,18 @@ module "alb" {
   alb_sg_id         = module.security.alb_sg_id
   app_port          = var.app_port
   health_check_path = "/"
-  certificate_arn   = module.dns_acm.certificate_arn
+
+}
+
+module "dns" {
+  source = "./modules/dns"
+
+  domain_name    = var.domain_name
+  subdomain      = var.subdomain
+  hosted_zone_id = var.hosted_zone_id
+
+  alb_dns_name = module.alb.alb_dns_name
+  alb_zone_id  = module.alb.alb_zone_id
 }
 
 module "ecs" {
@@ -66,9 +78,13 @@ module "ecs" {
 module "dns_acm" {
   source = "./modules/dns_acm"
 
-  domain_name  = var.domain_name
-  subdomain    = var.subdomain
-  alb_dns_name = module.alb.alb_dns_name
-  alb_zone_id  = module.alb.alb_zone_id
+
+  domain_name    = var.domain_name
+  subdomain      = var.subdomain
+  hosted_zone_id = var.hosted_zone_id
+
+  # Optional (recommended): creates the subdomain -> ALB record
 }
+
+
 
