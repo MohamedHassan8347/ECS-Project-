@@ -17,6 +17,19 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Debug paths
+        run: |
+          pwd
+          ls -la
+          ls -la infra || true
+          ls -la infra/modules || true
+          find infra/modules -maxdepth 2 -type f | head -n 50 || true
+
+      - name: Debug module sources
+        run: |
+          sed -n '1,140p' infra/main.tf
+
+
       - name: Configure AWS creds (OIDC)
         uses: aws-actions/configure-aws-credentials@v4
         with:
