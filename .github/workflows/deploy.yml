@@ -52,7 +52,6 @@ jobs:
 
       - name: Post-deploy health check
         run: |
-          # give ECS/ALB a short warm-up
           sleep 20
           curl -fsS https://tm.mhecsproject.com/health
 
