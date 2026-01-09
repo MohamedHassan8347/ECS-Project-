@@ -1,0 +1,58 @@
+name: Terraform Deploy
+
+on:
+  workflow_dispatch:
+  push:
+    branches: ["main"]
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure AWS creds (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Install Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.13.4
+
+      - name: Terraform init
+        working-directory: infra
+        run: terraform init
+
+      - name: Terraform fmt + validate
+        working-directory: infra
+        run: |
+          terraform fmt -recursive
+          terraform validate
+
+      - name: Terraform plan
+        working-directory: infra
+        env:
+          TF_VAR_image_tag: ${{ github.sha }}
+        run: terraform plan -out=tfplan
+
+      - name: Terraform apply
+        working-directory: infra
+        env:
+          TF_VAR_image_tag: ${{ github.sha }}
+        run: terraform apply -auto-approve tfplan
+
+      - name: Post-deploy health check
+        run: |
+          # give ECS/ALB a short warm-up
+          sleep 20
+          curl -fsS https://tm.mhecsproject.com/health
+

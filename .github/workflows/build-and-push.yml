@@ -1,12 +1,45 @@
-name: Simple Test
+name: Build and Push (ECR)
 
 on:
+  push:
+    branches: ["main"]
   workflow_dispatch:
 
+permissions:
+  id-token: write
+  contents: read
+
 jobs:
-  test:
+  build_push:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Hello
-        run: echo "YAML is working"
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure AWS creds (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Login to ECR
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build and push image
+        env:
+          AWS_REGION: ${{ secrets.AWS_REGION }}
+          ACCOUNT_ID: 057773388128
+          REPO_NAME: umami
+          TAG: ${{ github.sha }}
+        run: |
+          IMAGE_URI="$ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$REPO_NAME:$TAG"
+          echo "Building $IMAGE_URI"
+          docker build -t "$IMAGE_URI" .
+          docker push "$IMAGE_URI"
+          echo "IMAGE_URI=$IMAGE_URI" >> $GITHUB_ENV
+
+      - name: Summary
+        run: |
+          echo "Pushed: $IMAGE_URI"
+
