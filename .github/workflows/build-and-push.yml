@@ -13,6 +13,9 @@ jobs:
   build-and-push:
     runs-on: ubuntu-latest
 
+    outputs:
+      image_uri: ${{ steps.meta.outputs.image_uri }}
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -21,24 +24,29 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
-          aws-region: ${{ secrets.AWS_REGION }}
+          aws-region: eu-north-1
 
-      - name: Login to ECR
+      - name: Login to ECR (eu-north-1)
         uses: aws-actions/amazon-ecr-login@v2
 
       - name: Build and push image
+        id: meta
         env:
-          AWS_REGION: ${{ secrets.AWS_REGION }}
+          AWS_REGION: eu-north-1
           REPO_NAME: umami
           TAG: ${{ github.sha }}
         run: |
           set -euo pipefail
-          ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
-          IMAGE_URI="$ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$REPO_NAME:$TAG"
 
-          echo "Building $IMAGE_URI"
+          ACCOUNT_ID="$(aws sts get-caller-identity --query Account --output text)"
+          REGISTRY="${ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
+          IMAGE_URI="${REGISTRY}/${REPO_NAME}:${TAG}"
+
+          echo "ACCOUNT_ID=$ACCOUNT_ID"
+          echo "REGISTRY=$REGISTRY"
+          echo "IMAGE_URI=$IMAGE_URI"
+
           docker build -t "$IMAGE_URI" .
           docker push "$IMAGE_URI"
 
-          echo "IMAGE_URI=$IMAGE_URI" >> "$GITHUB_ENV"
-
+          echo "image_uri=$IMAGE_URI" >> "$GITHUB_OUTPUT"

@@ -26,6 +26,7 @@ resource "aws_lb_target_group" "this" {
     unhealthy_threshold = 2
   }
 }
+
 # HTTP Listener (80) → redirect to HTTPS (443)
 resource "aws_lb_listener" "http" {
   load_balancer_arn = aws_lb.this.arn
@@ -56,5 +57,29 @@ resource "aws_lb_listener" "https" {
     target_group_arn = aws_lb_target_group.this.arn
   }
 }
+
+# Health endpoint (stable for CI/CD + monitoring)
+# If someone hits https://<domain>/health the ALB itself returns 200 {"status":"ok"}
+resource "aws_lb_listener_rule" "health_fixed_response" {
+  listener_arn = aws_lb_listener.https.arn
+  priority     = 20
+
+  condition {
+    path_pattern {
+      values = ["/health"]
+    }
+  }
+
+  action {
+    type = "fixed-response"
+
+    fixed_response {
+      content_type = "application/json"
+      message_body = "{\"status\":\"ok\"}"
+      status_code  = "200"
+    }
+  }
+}
+
 
 

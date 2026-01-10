@@ -36,13 +36,20 @@ yarn-error.log*
 *.tfstate.*
 crash.log
 crash.*.log
-*.tfvars
-*.tfvars.json
 .override.tf
 .override.tf.json
 *_override.tf
 *_override.tf.json
-infra/terraform.tfvars
+
+
+# Terraform variable files (secrets)
+terraform.tfvars
+terraform.tfvars.json
+*.auto.tfvars.json
+
+# Allow non-secret CI vars
+!infra/terraform.auto.tfvars
+
 
 # Optional: keep this commented if you want to COMMIT it
 # .terraform.lock.hcl
