@@ -28,27 +28,21 @@ yarn-error.log*
 .idea/
 *.swp
 
-############################
 # Terraform
-############################
 .terraform/
 *.tfstate
 *.tfstate.*
 crash.log
 crash.*.log
-.override.tf
-.override.tf.json
-*_override.tf
-*_override.tf.json
 
-
-# Terraform variable files (secrets)
+# Secret var files (do not commit)
 terraform.tfvars
 terraform.tfvars.json
 *.auto.tfvars.json
 
 # Allow non-secret CI vars
 !infra/terraform.auto.tfvars
+
 
 
 # Optional: keep this commented if you want to COMMIT it
