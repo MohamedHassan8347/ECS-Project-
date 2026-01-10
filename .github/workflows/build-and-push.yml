@@ -1,17 +1,21 @@
-      - name: Build and push image
-        env:
-          AWS_REGION: ${{ secrets.AWS_REGION }}
-          REPO_NAME: umami
-          TAG: ${{ github.sha }}
-        run: |
-          ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
-          IMAGE_URI="$ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$REPO_NAME:$TAG"
+name: Build and Push Image
 
-          echo "Building $IMAGE_URI"
-          docker build -t "$IMAGE_URI" .
-          docker push "$IMAGE_URI"
+on:
+  push:
+    branches: ["main"]
+  workflow_dispatch:
 
-          echo "IMAGE_URI=$IMAGE_URI" >> $GITHUB_ENV
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
 
       - name: Configure AWS creds (OIDC)
         uses: aws-actions/configure-aws-credentials@v4
@@ -21,4 +25,20 @@
 
       - name: Login to ECR
         uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build and push image
+        env:
+          AWS_REGION: ${{ secrets.AWS_REGION }}
+          REPO_NAME: umami
+          TAG: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
+          IMAGE_URI="$ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$REPO_NAME:$TAG"
+
+          echo "Building $IMAGE_URI"
+          docker build -t "$IMAGE_URI" .
+          docker push "$IMAGE_URI"
+
+          echo "IMAGE_URI=$IMAGE_URI" >> "$GITHUB_ENV"
 
