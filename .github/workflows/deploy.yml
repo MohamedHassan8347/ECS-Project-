@@ -29,7 +29,6 @@ jobs:
         run: |
           sed -n '1,140p' infra/main.tf
 
-
       - name: Configure AWS creds (OIDC)
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -41,7 +40,7 @@ jobs:
         with:
           terraform_version: 1.13.4
 
-            - name: Terraform init
+      - name: Terraform init
         run: terraform -chdir=infra init
 
       - name: Terraform fmt + validate
@@ -52,22 +51,20 @@ jobs:
       - name: Terraform plan
         env:
           TF_VAR_image_tag: ${{ github.sha }}
-          TF_VAR_acm_certificate_arn: ${{ secrets.TF_VAR_acm_certificate_arn }}
-          TF_VAR_app_secret: ${{ secrets.TF_VAR_app_secret }}
-          TF_VAR_db_password: ${{ secrets.TF_VAR_db_password }}
+          TF_VAR_acm_certificate_arn: ${{ secrets.TF_VAR_ACM_CERTIFICATE_ARN }}
+          TF_VAR_app_secret: ${{ secrets.TF_VAR_APP_SECRET }}
+          TF_VAR_db_password: ${{ secrets.TF_VAR_DB_PASSWORD }}
         run: terraform -chdir=infra plan -out=tfplan -input=false
 
       - name: Terraform apply
         env:
           TF_VAR_image_tag: ${{ github.sha }}
-         TF_VAR_acm_certificate_arn: ${{ secrets.TF_VAR_acm_certificate_arn }}
-          TF_VAR_app_secret: ${{ secrets.TF_VAR_app_secret }}
-          TF_VAR_db_password: ${{ secrets.TF_VAR_db_password }}
-       run: terraform -chdir=infra apply -auto-approve -input=false tfplan
-
+          TF_VAR_acm_certificate_arn: ${{ secrets.TF_VAR_ACM_CERTIFICATE_ARN }}
+          TF_VAR_app_secret: ${{ secrets.TF_VAR_APP_SECRET }}
+          TF_VAR_db_password: ${{ secrets.TF_VAR_DB_PASSWORD }}
+        run: terraform -chdir=infra apply -auto-approve -input=false tfplan
 
       - name: Post-deploy health check
         run: |
           sleep 20
-          curl -fsS https://tm.mhecsproject.com/health
-
+          curl -fsS https://tm.mhecsproject.com/health | grep -q '"status":"ok"'
