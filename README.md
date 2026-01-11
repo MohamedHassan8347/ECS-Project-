@@ -45,6 +45,8 @@ flowchart LR
 
   GH -->|Build & Push| ECR
   GH -->|Terraform Apply| ALB
+```
+---
 
 Key design decisions
 
