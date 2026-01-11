@@ -59,6 +59,8 @@ OIDC for CI/CD: GitHub Actions assumes an AWS IAM Role using OIDC → no long-li
 Terraform modules: Networking, security groups, ALB, ECS, RDS, DNS/ACM separated for clarity and reuse.
 
 Repo Structure  
+```
+
 .
 ├─ .github/workflows/
 │  ├─ build-and-push.yml     # builds Docker image and pushes to ECR
