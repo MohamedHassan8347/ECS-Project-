@@ -78,7 +78,7 @@ flowchart LR
 ---
 
 **CI/CD**
-1) Build & Push (Docker → ECR)
+1) *Build & Push (Docker → ECR)*
 
 - Triggered on push to main (and manual workflow_dispatch):
 
@@ -88,7 +88,7 @@ flowchart LR
 
 - Pushes to ECR
 
-2) Deploy (Terraform)
+2) *Deploy (Terraform)*
 
 Triggered on push to main (and manual workflow_dispatch):
 
@@ -105,7 +105,8 @@ Triggered on push to main (and manual workflow_dispatch):
 curl -fsS https://tm.mhecsproject.com/health | grep "ok"
 
 **Requirements / Setup**
-AWS
+
+*AWS*
 
 - Domain hosted in Route 53
 
