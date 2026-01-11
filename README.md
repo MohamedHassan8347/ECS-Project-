@@ -50,6 +50,8 @@ flowchart LR
 [Flowcharts.pdf](https://github.com/user-attachments/files/24554860/Flowcharts.pdf)
 
 
+![AWS Architecture Diagram] (images/Flowcharts.png)
+
 **Key design decisions**
 
 - HTTPS enforced: HTTP (80) redirects to HTTPS (443).
