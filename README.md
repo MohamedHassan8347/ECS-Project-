@@ -74,6 +74,7 @@ Repo Structure
 ├─ Dockerfile
 ├─ .dockerignore
 └─ README.md
+```
 
 CI/CD
 1) Build & Push (Docker → ECR)
