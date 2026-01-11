@@ -47,8 +47,13 @@ flowchart LR
   GH -->|Terraform Apply| ALB
 ```
 ---
-[Flowcharts.pdf](https://github.com/user-attachments/files/24554860/Flowcharts.pdf)
 
+---
+
+<p align="center">
+  <img src="images/Flowcharts.png" style="width:700px"/>
+</p>
+---
 
 ![AWS Architecture Diagram] (images/Flowcharts.png)
 
