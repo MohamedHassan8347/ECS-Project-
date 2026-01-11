@@ -47,6 +47,8 @@ flowchart LR
   GH -->|Terraform Apply| ALB
 ```
 ---
+[Flowcharts.pdf](https://github.com/user-attachments/files/24554860/Flowcharts.pdf)
+
 
 **Key design decisions**
 
