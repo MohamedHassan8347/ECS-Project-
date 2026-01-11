@@ -50,15 +50,15 @@ flowchart LR
 
 Key design decisions
 
-HTTPS enforced: HTTP (80) redirects to HTTPS (443).
+- HTTPS enforced: HTTP (80) redirects to HTTPS (443).
 
-Stable /health: Implemented as an ALB listener rule fixed-response, so CI/CD health checks do not depend on application routes.
+- Stable /health: Implemented as an ALB listener rule fixed-response, so CI/CD health checks do not depend on application routes.
 
-OIDC for CI/CD: GitHub Actions assumes an AWS IAM Role using OIDC → no long-lived credentials stored in GitHub.
+- OIDC for CI/CD: GitHub Actions assumes an AWS IAM Role using OIDC → no long-lived credentials stored in GitHub.
 
-Terraform modules: Networking, security groups, ALB, ECS, RDS, DNS/ACM separated for clarity and reuse.
+- Terraform modules: Networking, security groups, ALB, ECS, RDS, DNS/ACM separated for clarity and reuse.
 
-Repo Structure  
+**Repo Structure**  
 ```
 
 .
@@ -77,7 +77,7 @@ Repo Structure
 ```
 ---
 
-CI/CD
+**CI/CD**
 1) Build & Push (Docker → ECR)
 
 Triggered on push to main (and manual workflow_dispatch):
