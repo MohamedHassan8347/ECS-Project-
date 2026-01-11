@@ -48,7 +48,7 @@ flowchart LR
 ```
 ---
 
-Key design decisions
+**Key design decisions**
 
 - HTTPS enforced: HTTP (80) redirects to HTTPS (443).
 
@@ -80,65 +80,71 @@ Key design decisions
 **CI/CD**
 1) Build & Push (Docker → ECR)
 
-Triggered on push to main (and manual workflow_dispatch):
+- Triggered on push to main (and manual workflow_dispatch):
 
-Builds image
+- Builds image
 
-Tags with commit SHA
+- Tags with commit SHA
 
-Pushes to ECR
+- Pushes to ECR
 
 2) Deploy (Terraform)
 
 Triggered on push to main (and manual workflow_dispatch):
 
-terraform init
+- terraform init
 
-terraform fmt/validate
+- terraform fmt/validate
 
-terraform plan (non-interactive)
+- terraform plan (non-interactive)
 
-terraform apply
+- terraform apply
 
-Post-deploy verification:
+- Post-deploy verification:
 
 curl -fsS https://tm.mhecsproject.com/health | grep "ok"
 
-Requirements / Setup
+**Requirements / Setup**
 AWS
 
-Domain hosted in Route 53
+- Domain hosted in Route 53
 
-ACM certificate validated for tm.mhecsproject.com in the ALB region
+- ACM certificate validated for tm.mhecsproject.com in the ALB region
 
-GitHub Secrets
+*GitHub Secrets*
 
 Set these repository secrets:
 
-AWS_REGION (e.g. eu-north-1)
+- AWS_REGION (e.g. eu-north-1)
 
-AWS_ROLE_ARN (OIDC role for GitHub Actions)
+- AWS_ROLE_ARN (OIDC role for GitHub Actions)
 
-TF_VAR_APP_SECRET (32+ random chars)
+- TF_VAR_APP_SECRET (32+ random chars)
 
-TF_VAR_DB_PASSWORD
+- TF_VAR_DB_PASSWORD
 
-TF_VAR_ACM_CERTIFICATE_ARN
+- TF_VAR_ACM_CERTIFICATE_ARN
 
 Non-secret values can be committed via infra/terraform.auto.tfvars (optional).
 
-How to Deploy (Local)
+**How to Deploy (Local)**
+```
+
 terraform -chdir=infra init
 terraform -chdir=infra plan
 terraform -chdir=infra apply
+```
 Verify:
+```
+
 curl -I http://tm.mhecsproject.com/         # should 301 -> https
 curl -i --http2 https://tm.mhecsproject.com/health  # should 200 {"status":"ok"}
+```
 
-Troubleshooting Notes
+**Troubleshooting Notes**
 
-503 from ALB usually means target group has no healthy targets (task crashed / wrong port / SG blocked).
+- 503 from ALB usually means target group has no healthy targets (task crashed / wrong port / SG blocked).
 
-TLS errors connecting to DB were resolved by setting sslmode=no-verify for RDS connectivity (Umami/Prisma TLS chain behavior).
+- TLS errors connecting to DB were resolved by setting sslmode=no-verify for RDS connectivity (Umami/Prisma TLS chain behavior).
 
-State lock errors (bonus backend): DynamoDB lock prevents concurrent terraform runs. Use terraform force-unlock <LOCK_ID> only when you’re sure no apply is running.
+- State lock errors (bonus backend): DynamoDB lock prevents concurrent terraform runs. Use terraform force-unlock <LOCK_ID> only when you’re sure no apply is running.
