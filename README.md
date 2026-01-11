@@ -18,10 +18,31 @@ Health endpoint (ALB-level): `https://tm.mhecsproject.com/health`
 
 ```mermaid
 flowchart LR
-  U[User Browser] -->|HTTPS 443| ALB[Application Load Balancer]
-  ALB -->|Forward /| ECS[ECS Fargate Service (Umami container)]
-  ECS -->|SQL (5432)| RDS[(RDS Postgres)]
+  U[User Browser]
+  R53[Route 53]
+  ALB[Application Load Balancer]
+  ECS["ECS Fargate Service - Umami"]
+  RDS[(PostgreSQL RDS)]
+  CW[CloudWatch Logs]
+  ECR[Amazon ECR]
+  GH[GitHub Actions]
+  ACM[ACM Certificate]
 
-  ALB -->|Fixed response /health| H[{"status":"ok"}]
-  DNS[Route 53: tm.mhecsproject.com] --> ALB
-  ACM[ACM Certificate] --> ALB
+  U -->|DNS lookup| R53
+  R53 --> ALB
+
+  U -->|HTTP :80| ALB
+  ALB -->|301 Redirect| U
+
+  U -->|HTTPS :443| ALB
+  ACM --> ALB
+
+  ALB -->|/health| FIXED["ALB Fixed Response 200"]
+  ALB -->|/| ECS
+
+  ECS --> RDS
+  ECS --> CW
+
+  GH -->|Build & Push| ECR
+  GH -->|Terraform Apply| ALB
+
