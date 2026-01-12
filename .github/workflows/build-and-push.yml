@@ -1,23 +1,54 @@
-       - name: Build and push image
-         id: meta
-         env:
-           AWS_REGION: eu-north-1
-           REPO_NAME: umami
-           TAG: ${{ github.sha }}
-          run: |
-           set -euo pipefail
-           ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
-           IMAGE_URI="$ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$REPO_NAME:$TAG"
+name: Build and Push Image
 
-           echo "Building $IMAGE_URI"
+on:
+  push:
+    branches: ["main"]
+  workflow_dispatch:
 
-           docker build \
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+
+    outputs:
+      image_uri: ${{ steps.meta.outputs.image_uri }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure AWS creds (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: eu-north-1
+
+      - name: Login to ECR (eu-north-1)
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build and push image
+        id: meta
+        env:
+          AWS_REGION: eu-north-1
+          REPO_NAME: umami
+          TAG: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
+          IMAGE_URI="$ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$REPO_NAME:$TAG"
+
+          echo "Building $IMAGE_URI"
+
+          docker build \
             -f app/Dockerfile \
             --build-arg DATABASE_URL="postgresql://user:pass@localhost:5432/dummy" \
             -t "$IMAGE_URI" \
             app
 
-           docker push "$IMAGE_URI"
+          docker push "$IMAGE_URI"
 
-           echo "image_uri=$IMAGE_URI" >> "$GITHUB_OUTPUT"
-           echo "IMAGE_URI=$IMAGE_URI" >> "$GITHUB_ENV"
+          echo "image_uri=$IMAGE_URI" >> "$GITHUB_OUTPUT"
+          echo "IMAGE_URI=$IMAGE_URI" >> "$GITHUB_ENV"
