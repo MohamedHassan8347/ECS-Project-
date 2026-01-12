@@ -37,16 +37,12 @@ jobs:
           TAG: ${{ github.sha }}
         run: |
           set -euo pipefail
+          ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
+          IMAGE_URI="$ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$REPO_NAME:$TAG"
 
-          ACCOUNT_ID="$(aws sts get-caller-identity --query Account --output text)"
-          REGISTRY="${ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
-          IMAGE_URI="${REGISTRY}/${REPO_NAME}:${TAG}"
-
-          echo "ACCOUNT_ID=$ACCOUNT_ID"
-          echo "REGISTRY=$REGISTRY"
-          echo "IMAGE_URI=$IMAGE_URI"
-
-          docker build -t "$IMAGE_URI" .
+          docker build \
+            --build-arg DATABASE_URL="${{ secrets.UMAMI_BUILD_DATABASE_URL }}" \
+           -t "$IMAGE_URI" .
+  
           docker push "$IMAGE_URI"
-
-          echo "image_uri=$IMAGE_URI" >> "$GITHUB_OUTPUT"
+          echo "IMAGE_URI=$IMAGE_URI" >> "$GITHUB_ENV"

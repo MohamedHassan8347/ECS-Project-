@@ -9,6 +9,10 @@ RUN yarn install --frozen-lockfile
 # Copy the source
 COPY app/ ./
 
+ARG DATABASE_URL
+ENV DATABASE_URL=$DATABASE_URL
+
+
 # Build Umami
 RUN yarn build
 
