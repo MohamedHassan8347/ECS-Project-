@@ -12,6 +12,15 @@ This project demonstrates a production-style deployment of a containerized web a
 Live URL: `https://tm.mhecsproject.com`  
 Health endpoint (ALB-level): `https://tm.mhecsproject.com/health`
 
+*Deployed App*
+
+---
+
+<p align="center">
+  <img src="images/Umami-UI.png" style="width:700px"/>
+</p>
+
+
 ---
 
 ## Architecture
@@ -78,6 +87,10 @@ Triggered on push to main (and manual workflow_dispatch):
 - Post-deploy verification:
 
 curl -fsS https://tm.mhecsproject.com/health | grep "ok"
+
+3) *Terraform Destroy*
+
+- Removes all Terraform-managed AWS resources when not in use, securely and safely producing a clean environment
 
 **Requirements / Setup**
 
