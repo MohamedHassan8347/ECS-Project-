@@ -13,8 +13,8 @@ ARG DATABASE_URL
 ENV DATABASE_URL=$DATABASE_URL
 
 
-# Build Umami
-RUN yarn build
+# Umami build normally runs check-db; skip it in CI builds
+RUN yarn build-db && yarn build-tracker && yarn build-geo && yarn build-app
 
 
 # ---------- production stage ----------

@@ -40,15 +40,8 @@ jobs:
           ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
           IMAGE_URI="$ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$REPO_NAME:$TAG"
 
-          docker build \
-            --build-arg DATABASE_URL="${{ secrets.UMAMI_BUILD_DATABASE_URL }}" \
-            -t "$IMAGE_URI" .
-           if [ -z "${{ secrets.UMAMI_BUILD_DATABASE_URL }}" ]; then
-             echo "ERROR: UMAMI_BUILD_DATABASE_URL secret is empty or not available to this workflow"
-             exit 1
-           else
-             echo "UMAMI_BUILD_DATABASE_URL secret is present"
-           fi
+          docker build -t "$IMAGE_URI" .
+
 
   
           docker push "$IMAGE_URI"
