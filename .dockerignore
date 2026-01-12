@@ -6,3 +6,12 @@ node_modules
 npm-debug.log
 *.zip
 aws
+
+.git
+**/.terraform
+**/*.tfstate*
+**/*.tfvars
+node_modules
+app/node_modules
+infra/tfplan
+.DS_Store

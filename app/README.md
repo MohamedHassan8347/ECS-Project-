@@ -1,32 +1,132 @@
-# Application Overview
+<p align="center">
+  <img src="https://content.umami.is/website/images/umami-logo.png" alt="Umami Logo" width="100">
+</p>
 
-This project deploys **Umami**, an open-source web analytics platform, as a
-containerized application on AWS using ECS (Fargate), Terraform, and GitHub Actions.
+<h1 align="center">Umami</h1>
 
-## Why there is no application source code here
+<p align="center">
+  <i>Umami is a simple, fast, privacy-focused alternative to Google Analytics.</i>
+</p>
 
-The application itself is **not custom-written** for this project.
-Instead, it uses the official Umami Docker image published by the Umami project:
+<p align="center">
+  <a href="https://github.com/umami-software/umami/releases"><img src="https://img.shields.io/github/release/umami-software/umami.svg" alt="GitHub Release" /></a>
+  <a href="https://github.com/umami-software/umami/blob/master/LICENSE"><img src="https://img.shields.io/github/license/umami-software/umami.svg" alt="MIT License" /></a>
+  <a href="https://github.com/umami-software/umami/actions"><img src="https://img.shields.io/github/actions/workflow/status/umami-software/umami/ci.yml" alt="Build Status" /></a>
+  <a href="https://analytics.umami.is/share/LGazGOecbDtaIwDr/umami.is" style="text-decoration: none;"><img src="https://img.shields.io/badge/Try%20Demo%20Now-Click%20Here-brightgreen" alt="Umami Demo" /></a>
+</p>
 
-- Project: https://github.com/umami-software/umami
-- Docker image: `ghcr.io/umami-software/umami`
+---
 
-This project focuses on DevOps and infrastructure engineering**, including:
-- Containerization and image management
-- AWS ECS (Fargate) deployments
-- Networking and security (VPC, ALB, Security Groups)
-- Managed databases (Amazon RDS / Aurora PostgreSQL)
-- Infrastructure as Code (Terraform)
-- CI/CD automation (GitHub Actions)
-- HTTPS and custom domain configuration (ACM + Route 53)
+## 🚀 Getting Started
 
-## How the application is used
+A detailed getting started guide can be found at [umami.is/docs](https://umami.is/docs/).
 
-The Umami container image is referenced directly in the root `Dockerfile` and
-deployed as an ECS task. Configuration such as database connectivity and secrets
-is provided via environment variables and AWS-managed services.
+---
 
-If required, the Umami source code could be cloned into this directory and
-built from source using a multi-stage Dockerfile, but this is intentionally
-out of scope for this project.
+## 🛠 Installing from Source
 
+### Requirements
+
+- A server with Node.js version 18.18+.
+- A PostgreSQL database version v12.14+.
+
+### Get the source code and install packages
+
+```bash
+git clone https://github.com/umami-software/umami.git
+cd umami
+pnpm install
+```
+
+### Configure Umami
+
+Create an `.env` file with the following:
+
+```bash
+DATABASE_URL=connection-url
+```
+
+The connection URL format:
+
+```bash
+postgresql://username:mypassword@localhost:5432/mydb
+```
+
+### Build the Application
+
+```bash
+pnpm run build
+```
+
+The build step will create tables in your database if you are installing for the first time. It will also create a login user with username **admin** and password **umami**.
+
+### Start the Application
+
+```bash
+pnpm run start
+```
+
+By default, this will launch the application on `http://localhost:3000`. You will need to either [proxy](https://docs.nginx.com/nginx/admin-guide/web-server/reverse-proxy/) requests from your web server or change the [port](https://nextjs.org/docs/api-reference/cli#production) to serve the application directly.
+
+---
+
+## 🐳 Installing with Docker
+
+Umami provides Docker images as well as a Docker compose file for easy deployment.
+
+Docker image:
+
+```bash
+docker pull docker.umami.is/umami-software/umami:latest
+```
+
+Docker compose (Runs Umami with a PostgreSQL database):
+
+```bash
+docker compose up -d
+```
+
+---
+
+## 🔄 Getting Updates
+
+To get the latest features, simply do a pull, install any new dependencies, and rebuild:
+
+```bash
+git pull
+pnpm install
+pnpm build
+```
+
+To update the Docker image, simply pull the new images and rebuild:
+
+```bash
+docker compose pull
+docker compose up --force-recreate -d
+```
+
+---
+
+## 🛟 Support
+
+<p align="center">
+  <a href="https://github.com/umami-software/umami"><img src="https://img.shields.io/badge/GitHub--blue?style=social&logo=github" alt="GitHub" /></a>
+  <a href="https://twitter.com/umami_software"><img src="https://img.shields.io/badge/Twitter--blue?style=social&logo=twitter" alt="Twitter" /></a>
+  <a href="https://linkedin.com/company/umami-software"><img src="https://img.shields.io/badge/LinkedIn--blue?style=social&logo=linkedin" alt="LinkedIn" /></a>
+  <a href="https://umami.is/discord"><img src="https://img.shields.io/badge/Discord--blue?style=social&logo=discord" alt="Discord" /></a>
+</p>
+
+[release-shield]: https://img.shields.io/github/release/umami-software/umami.svg
+[releases-url]: https://github.com/umami-software/umami/releases
+[license-shield]: https://img.shields.io/github/license/umami-software/umami.svg
+[license-url]: https://github.com/umami-software/umami/blob/master/LICENSE
+[build-shield]: https://img.shields.io/github/actions/workflow/status/umami-software/umami/ci.yml
+[build-url]: https://github.com/umami-software/umami/actions
+[github-shield]: https://img.shields.io/badge/GitHub--blue?style=social&logo=github
+[github-url]: https://github.com/umami-software/umami
+[twitter-shield]: https://img.shields.io/badge/Twitter--blue?style=social&logo=twitter
+[twitter-url]: https://twitter.com/umami_software
+[linkedin-shield]: https://img.shields.io/badge/LinkedIn--blue?style=social&logo=linkedin
+[linkedin-url]: https://linkedin.com/company/umami-software
+[discord-shield]: https://img.shields.io/badge/Discord--blue?style=social&logo=discord
+[discord-url]: https://discord.com/invite/4dz4zcXYrQ
