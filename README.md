@@ -61,8 +61,8 @@ Health endpoint (ALB-level): `https://tm.mhecsproject.com/health`
 ```
 ---
 
-**CI/CD**
-1) *Build & Push (Docker → ECR)*
+## CI/CD
+1) **Build & Push (Docker → ECR)**
 
 - Triggered on push to main (and manual workflow_dispatch):
 
@@ -72,7 +72,7 @@ Health endpoint (ALB-level): `https://tm.mhecsproject.com/health`
 
 - Pushes to ECR
 
-2) *Deploy (Terraform)*
+2) **Deploy (Terraform)**
 
 Triggered on push to main (and manual workflow_dispatch):
 
@@ -88,7 +88,7 @@ Triggered on push to main (and manual workflow_dispatch):
 
 curl -fsS https://tm.mhecsproject.com/health | grep "ok"
 
-3) *Terraform Destroy*
+3) **Terraform Destroy**
 
 - Removes all Terraform-managed AWS resources when not in use, securely and safely producing a clean environment
 
@@ -122,6 +122,7 @@ Non-secret values can be committed via infra/terraform.auto.tfvars (optional).
 terraform -chdir=infra init
 terraform -chdir=infra plan
 terraform -chdir=infra apply
+terraform -chdir=infra destroy
 ```
 Verify:
 ```
