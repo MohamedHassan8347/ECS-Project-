@@ -3,7 +3,10 @@ name: Build and Push Image
 on:
   push:
     branches: ["main"]
-  workflow_dispatch:
+    paths:
+      - 'app/**'
+      - 'Dockerfile'
+      - '.github/workflows/build-and-push.yml'  
 
 permissions:
   id-token: write
