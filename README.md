@@ -46,18 +46,38 @@ Health endpoint (ALB-level): `https://tm.mhecsproject.com/health`
 ```
 
 .
-├─ .github/workflows/
-│  ├─ build-and-push.yml     # builds Docker image and pushes to ECR
-│  └─ deploy.yml             # terraform plan/apply via OIDC
+├─ .github/
+│  └─ workflows/
+│     ├─ test-build.yml            # Build & push Docker image to ECR (CI)
+│     ├─ plan.yml                  # Terraform plan (CI – no changes applied)
+│     ├─ apply.yml                 # Terraform apply (manual, OIDC-secured)
+│     └─ destroy.yml               # Terraform destroy (manual cleanup)
+│
+├─ bootstrap/
+│  ├─ main.tf                      # S3 backend + DynamoDB lock table
+│  ├─ variables.tf                 # Bootstrap variables
+│  └─ outputs.tf                  # Backend outputs
+│
 ├─ infra/
-│  ├─ main.tf                # wiring modules together
-│  ├─ variables.tf           # input variables
-│  ├─ outputs.tf             # key outputs (app_url, alb_dns_name, ecr url)
-│  ├─ backend.tf             # remote state: S3 + DynamoDB locking (bonus)
-│  └─ modules/               # reusable terraform modules
-├─ Dockerfile
-├─ .dockerignore
-└─ README.md
+│  ├─ main.tf                      # Wires all Terraform modules together
+│  ├─ variables.tf                 # Root module input variables
+│  ├─ outputs.tf                   # Key outputs (app_url, alb_dns_name, ecr_url)
+│  ├─ backend.tf                   # Remote state configuration (S3 + DynamoDB)
+│  ├─ terraform.tfvars.example     # Example non-secret values
+│  └─ modules/
+│     ├─ vpc/                      # Custom VPC (subnets, routes, IGW)
+│     ├─ security/                 # Security groups
+│     ├─ alb/                      # Application Load Balancer + listeners
+│     ├─ ecs/                      # ECS cluster, service, task definition
+│     ├─ ecr/                      # ECR repository
+│     ├─ rds/                      # RDS PostgreSQL
+│     └─ dns_acm/                  # Route 53 + ACM certificate validation
+│
+├─ Dockerfile                      # Application container definition
+├─ .dockerignore                   # Docker build exclusions
+├─ README.md                       # Project documentation
+└─ .gitignore                      # Git ignore rules (Terraform, Docker, local files)
+
 ```
 ---
 
@@ -116,7 +136,33 @@ Set these repository secrets:
 
 Non-secret values can be committed via infra/terraform.auto.tfvars (optional).
 
-**How to Deploy (Local)**
+**Run the app (Local)**
+
+*Prerequisites*
+- Docker
+- Node.js (optional, if running without Docker)
+
+*Build and Run*
+
+```
+
+docker build -t umami-local .
+docker run -p 3000:3000 \
+  -e DATABASE_URL=postgres://user:pass@localhost:5432/db \
+  -e APP_SECRET=dev-secret \
+  umami-local
+
+```
+
+Verify:
+
+```
+
+curl http://localhost:3000
+
+```
+**Run Terraform Locally**
+
 ```
 
 terraform -chdir=infra init
@@ -131,6 +177,37 @@ curl -I http://tm.mhecsproject.com/         # should 301 -> https
 curl -i --http2 https://tm.mhecsproject.com/health  # should 200 {"status":"ok"}
 ```
 
+# Domain Page:
+
+<p align="center">
+  <img src="images/Umami UI.png
+  " style="width:700px"/>
+</p>
+
+# Docker Build and Push:
+
+<p align="center">
+  <img src="images/Build-and-push.png" style="width:700px"/>
+</p>
+
+# Terraform Plan
+
+<p align="center">
+  <img src="images/TerraformPlan.png" style="width:700px"/>
+</p>
+
+# Terraform Apply
+
+<p align="center">
+  <img src="images/TerraformApply.png" style="width:700px"/>
+</p>
+
+# Terraform Destroy:
+
+<p align="center">
+  <img src="images/TerraformDestroy.png" style="width:700px"/>
+</p>
+
 **Troubleshooting Notes**
 
 - 503 from ALB usually means target group has no healthy targets (task crashed / wrong port / SG blocked).
@@ -138,3 +215,4 @@ curl -i --http2 https://tm.mhecsproject.com/health  # should 200 {"status":"ok"}
 - TLS errors connecting to DB were resolved by setting sslmode=no-verify for RDS connectivity (Umami/Prisma TLS chain behavior).
 
 - State lock errors (bonus backend): DynamoDB lock prevents concurrent terraform runs. Use terraform force-unlock <LOCK_ID> only when you’re sure no apply is running.
+
