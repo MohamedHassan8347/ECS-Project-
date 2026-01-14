@@ -1,10 +1,9 @@
 terraform {
   backend "s3" {
-    bucket         = "umami-tfstate-057773388128"
-    key            = "umami/terraform.tfstate"
+    bucket         = "mh-ecs-project-tfstate"
+    key            = "ecs/prod/terraform.tfstate"
     region         = "eu-north-1"
-    dynamodb_table = "umami-terraform-locks"
+    dynamodb_table = "ecs-project-terraform-locks"
     encrypt        = true
   }
 }
-
