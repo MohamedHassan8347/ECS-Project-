@@ -12,7 +12,7 @@ This project demonstrates a production-style deployment of a containerized web a
 Live URL: `https://tm.mhecsproject.com`  
 Health endpoint (ALB-level): `https://tm.mhecsproject.com/health`
 
-*Deployed App*
+## Deployed App
 
 ---
 
@@ -28,7 +28,7 @@ Health endpoint (ALB-level): `https://tm.mhecsproject.com/health`
 ---
 
 <p align="center">
-  <img src="images/Flowcharts.png" style="width:700px"/>
+  <img src="images/Flowchart.png" style="width:700px"/>
 </p>
 ---
 
@@ -176,13 +176,6 @@ Verify:
 curl -I http://tm.mhecsproject.com/         # should 301 -> https
 curl -i --http2 https://tm.mhecsproject.com/health  # should 200 {"status":"ok"}
 ```
-
-# Domain Page:
-
-<p align="center">
-  <img src="images/Umami UI.png
-  " style="width:700px"/>
-</p>
 
 # Docker Build and Push:
 
