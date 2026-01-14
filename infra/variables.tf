@@ -12,23 +12,35 @@ variable "aws_region" {
   type        = string
 }
 
+variable "tags" {
+  description = "Tags applied to all resources"
+  type        = map(string)
+  default     = {}
+}
+
 ############################################
-# Networking
+# Networking (Custom VPC created by Terraform)
 ############################################
 
-variable "vpc_id" {
-  description = "Existing VPC ID"
+variable "vpc_cidr" {
+  description = "CIDR block for the custom VPC"
   type        = string
+  default     = "10.0.0.0/16"
 }
 
-variable "public_subnet_ids" {
-  description = "Public subnet IDs (for ALB & ECS)"
+variable "public_subnet_cidrs" {
+  description = "Public subnet CIDRs (for ALB & ECS in this low-cost setup)"
   type        = list(string)
+
+  # Two subnets across two AZs is a good baseline
+  default = ["10.0.1.0/24", "10.0.2.0/24"]
 }
 
-variable "private_subnet_ids" {
-  description = "Private subnet IDs (for RDS)"
+variable "private_subnet_cidrs" {
+  description = "Private subnet CIDRs (for RDS)"
   type        = list(string)
+
+  default = ["10.0.101.0/24", "10.0.102.0/24"]
 }
 
 ############################################
@@ -94,4 +106,6 @@ variable "acm_certificate_arn" {
   description = "ACM cert ARN in eu-north-1 for tm.<domain>"
   type        = string
 }
+
+
 

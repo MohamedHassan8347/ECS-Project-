@@ -1,15 +1,19 @@
-module "network" {
-  source = "./modules/network"
+module "vpc" {
+  source = "./modules/vpc"
 
-  name     = var.project_name
+  vpc_name = var.project_name
   vpc_cidr = "10.0.0.0/16"
+
+  # Add these variables in infra/variables.tf (and set in tfvars if you prefer)
+  public_subnet_cidrs  = var.public_subnet_cidrs
+  private_subnet_cidrs = var.private_subnet_cidrs
 }
 
 module "security" {
   source = "./modules/security"
 
   name     = var.project_name
-  vpc_id   = module.network.vpc_id
+  vpc_id   = module.vpc.vpc_id
   app_port = var.app_port
 }
 
@@ -22,7 +26,7 @@ module "rds" {
   source = "./modules/rds"
 
   name        = var.project_name
-  subnet_ids  = module.network.private_subnet_ids
+  subnet_ids  = module.vpc.private_subnet_ids
   db_sg_id    = module.security.db_sg_id
   db_name     = var.db_name
   db_username = var.db_username
@@ -39,12 +43,11 @@ module "alb" {
   certificate_arn = var.acm_certificate_arn
 
   name              = var.project_name
-  vpc_id            = module.network.vpc_id
-  subnet_ids        = module.network.public_subnet_ids
+  vpc_id            = module.vpc.vpc_id
+  subnet_ids        = module.vpc.public_subnet_ids
   alb_sg_id         = module.security.alb_sg_id
   app_port          = var.app_port
   health_check_path = "/"
-
 }
 
 module "dns" {
@@ -63,7 +66,7 @@ module "ecs" {
 
   name             = var.project_name
   aws_region       = var.aws_region
-  subnet_ids       = module.network.public_subnet_ids
+  subnet_ids       = module.vpc.public_subnet_ids
   ecs_sg_id        = module.security.ecs_sg_id
   target_group_arn = module.alb.target_group_arn
 
@@ -78,13 +81,11 @@ module "ecs" {
 module "dns_acm" {
   source = "./modules/dns_acm"
 
-
   domain_name    = var.domain_name
   subdomain      = var.subdomain
   hosted_zone_id = var.hosted_zone_id
 
   # Optional (recommended): creates the subdomain -> ALB record
 }
-
 
 

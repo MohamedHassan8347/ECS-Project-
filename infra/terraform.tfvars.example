@@ -1,20 +1,62 @@
-project_name         = "umami"
-aws_region           = "eu-north-1"
-domain_name          = "mhecsproject.com"
-subdomain            = "tm"
-hosted_zone_id       = "Z04887172DPZ00NG95JRN"
-db_name              = "umami"
-db_username          = "umami"
+############################################
+# Global / Project
+############################################
 
-vpc_id               = "vpc-xxxx"
-public_subnet_ids  = ["subnet-aaa", "subnet-bbb", "subnet-ccc"]
-private_subnet_ids = ["subnet-ddd", "subnet-eee", "subnet-fff"]
-app_port           = 3000
-# do NOT put real values here:
-db_password          = "REPLACE_ME"
-app_secret           = "REPLACE_ME"
-acm_certificate_arn  = "arn:aws:acm:eu-north-1:ACCOUNT:certificate/UUID"
+project_name = "umami"
+aws_region   = "eu-north-1"
+
+############################################
+# Networking (Custom VPC created by Terraform)
+############################################
+
+# CIDR block for the custom VPC
+vpc_cidr = "10.0.0.0/16"
+
+# Public subnets (ALB + ECS tasks)
+public_subnet_cidrs = [
+  "10.0.1.0/24",
+  "10.0.2.0/24"
+]
+
+# Private subnets (RDS)
+private_subnet_cidrs = [
+  "10.0.101.0/24",
+  "10.0.102.0/24"
+]
+
+############################################
+# Application
+############################################
+
+app_port = 3000
 
 # image_tag is set by CI using commit SHA
-image_tag            = "REPLACED_BY_CI"
+image_tag = "REPLACED_BY_CI"
 
+############################################
+# Database
+############################################
+
+db_name     = "umami"
+db_username = "umami"
+
+# do NOT put real values here
+db_password = "REPLACE_ME"
+
+############################################
+# Secrets
+############################################
+
+# do NOT put real values here
+app_secret = "REPLACE_ME"
+
+############################################
+# Domain / DNS / TLS
+############################################
+
+domain_name    = "mhecsproject.com"
+subdomain      = "tm"
+hosted_zone_id = "Z04887172DPZ00NG95JRN"
+
+# Existing ACM certificate (used by ALB HTTPS listener)
+acm_certificate_arn = "arn:aws:acm:eu-north-1:ACCOUNT:certificate/UUID"
