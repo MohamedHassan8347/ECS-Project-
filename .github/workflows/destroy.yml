@@ -1,12 +1,7 @@
-name: Terraform Destroy (Manual)
+name: Terraform Destroy
 
 on:
   workflow_dispatch:
-    inputs:
-      confirm:
-        description: 'Type DESTROY to confirm'
-        required: true
-        default: ''
 
 permissions:
   id-token: write
@@ -15,36 +10,33 @@ permissions:
 jobs:
   destroy:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Safety check
-        run: |
-          if [ "${{ github.event.inputs.confirm }}" != "DESTROY" ]; then
-            echo "Confirmation failed. You must type DESTROY to run this workflow."
-            exit 1
-          fi
-
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
       - name: Configure AWS creds (OIDC)
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
-          aws-region: eu-north-1
+          aws-region: ${{ secrets.AWS_REGION }}
 
-      - name: Setup Terraform
+      - name: Install Terraform
         uses: hashicorp/setup-terraform@v3
         with:
-          terraform_version: 1.9.8
+          terraform_version: 1.13.4
 
       - name: Terraform init
-        run: terraform -chdir=infra init -input=false
+        run: terraform -chdir=infra init
+
+      - name: Confirm ci.tfvars exists
+        run: |
+          ls -la infra
+          echo "---- ci.tfvars ----"
+          sed -n '1,200p' infra/ci.tfvars
 
       - name: Terraform destroy
         env:
-          TF_VAR_image_tag: ${{ github.sha }}
+          TF_VAR_image_tag: "destroy"
           TF_VAR_acm_certificate_arn: ${{ secrets.TF_VAR_ACM_CERTIFICATE_ARN }}
           TF_VAR_app_secret: ${{ secrets.TF_VAR_APP_SECRET }}
           TF_VAR_db_password: ${{ secrets.TF_VAR_DB_PASSWORD }}
-        run: terraform -chdir=infra destroy -auto-approve -input=false
+        run: terraform -chdir=infra destroy -var-file=ci.tfvars -auto-approve -input=false
